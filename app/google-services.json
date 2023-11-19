@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "116952774734",
+    "project_id": "medvoice-50850",
+    "storage_bucket": "medvoice-50850.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116952774734:android:6a7d086a0a70b6f078ab1f",
+        "android_client_info": {
+          "package_name": "com.himanshu.medvoice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "116952774734-saj1rgs94pshe22q2pgeumv3imtr4qi1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.himanshu.medvoice",
+            "certificate_hash": "c723f3f90264055d1977b3dcbb1d69cf44bd1ab6"
+          }
+        },
+        {
+          "client_id": "116952774734-0ksokgvdme90r0jnmg4qnvsgvp5921lu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBILYaAzEhaSQxzhyVqc-71xcd5QofvNPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "116952774734-0ksokgvdme90r0jnmg4qnvsgvp5921lu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
