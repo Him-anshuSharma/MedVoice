@@ -45,6 +45,10 @@ android {
 
 dependencies {
 
+    implementation ("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation ("com.github.bumptech.glide:okhttp3-integration:4.12.0")
+
+
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:32.6.0"))

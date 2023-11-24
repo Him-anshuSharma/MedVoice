@@ -5,12 +5,23 @@ import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.himanshu.medvoice.databinding.ActivityRecordAudioBinding
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.Response
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -19,6 +30,7 @@ class RecordAudio : AppCompatActivity() {
 
     private lateinit var mediaRecorder: MediaRecorder
     private lateinit var binding: ActivityRecordAudioBinding
+    private lateinit var recordedFile: File
 
     private var isRecording = false
 
@@ -40,6 +52,7 @@ class RecordAudio : AppCompatActivity() {
             )
         }
 
+        recordedFile = getOutputMediaFile()
         binding.recordBtn.setOnClickListener {
             onRecordButtonClicked()
         }
@@ -59,7 +72,7 @@ class RecordAudio : AppCompatActivity() {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-        mediaRecorder.setOutputFile(getOutputMediaFile()?.absolutePath)
+        mediaRecorder.setOutputFile(recordedFile?.absolutePath)
 
         try {
             mediaRecorder.prepare()
@@ -78,14 +91,56 @@ class RecordAudio : AppCompatActivity() {
         mediaRecorder.release()
         isRecording = false
         binding.recordBtn.text = "Start Recording"
+
+
+        // Check if the file is not null and exists
+        if (recordedFile != null && recordedFile.exists()) {
+            // Perform the file upload here
+            uploadAudioFile(recordedFile)
+        }
     }
 
-    private fun getOutputMediaFile(): File? {
-        // Get the Download directory
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    private fun uploadAudioFile(audioFile: File) {
+        val client = OkHttpClient()
 
-        // Create a directory in the Download folder if it doesn't exist
-        val mediaStorageDir = File(downloadsDir, "YourApp/Audio")
+        val requestBody: RequestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("audio", audioFile.name, audioFile.asRequestBody("audio/3gp".toMediaTypeOrNull()))
+            .build()
+
+        val request: Request = Request.Builder()
+            .url("http://10.0.2.2:5000/process_audio")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, "Error uploading audio file", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseData = response.body?.string()
+                    // Process the response data as needed
+                    Log.d("HJU",responseData.toString())
+                    runOnUiThread {
+                        Toast.makeText(applicationContext, "Audio file uploaded successfully", Toast.LENGTH_SHORT).show()
+                        binding.response.text = responseData.toString()
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(applicationContext, "Error uploading audio file", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun getOutputMediaFile(): File {
+        // Get the Download directory
+        val mediaStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
         if (!mediaStorageDir.exists()) {
             mediaStorageDir.mkdirs()
